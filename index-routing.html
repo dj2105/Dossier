@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dossier Architecture Draft</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app-shell">
+    <header class="site-header">
+      <div class="site-header__identity">
+        <p class="eyebrow">Online evidential dossier draft</p>
+        <h1 id="dossier-title">Investigative Dossier</h1>
+        <div class="header-meta" id="header-meta"></div>
+      </div>
+      <div class="site-header__status">
+        <div class="status-card">
+          <span class="status-card__label">Document status</span>
+          <strong id="document-status">Draft</strong>
+        </div>
+        <div class="status-card">
+          <span class="status-card__label">Current workspace</span>
+          <strong id="workspace-label">Overview</strong>
+        </div>
+      </div>
+    </header>
+
+    <nav class="primary-nav" id="primary-nav" aria-label="Dossier navigation"></nav>
+
+    <div class="layout-grid">
+      <aside class="left-rail">
+        <section class="rail-panel">
+          <div class="rail-panel__header">
+            <p class="panel-kicker">Report structure</p>
+            <h2>Document routes</h2>
+          </div>
+          <div id="rail-content"></div>
+        </section>
+
+        <section class="rail-panel compact-panel">
+          <div class="rail-panel__header">
+            <p class="panel-kicker">Timeline scope</p>
+            <h2>Phase overview</h2>
+          </div>
+          <div id="phase-summary-list" class="phase-summary-list"></div>
+        </section>
+      </aside>
+
+      <main class="workspace">
+        <section class="overview-panel panel-surface" id="overview-panel"></section>
+
+        <section class="timeline-panel panel-surface hidden" id="timeline-panel">
+          <div class="timeline-toolbar">
+            <div>
+              <p class="panel-kicker">Evidence navigation layer</p>
+              <h2>Master Timeline</h2>
+            </div>
+            <div class="toolbar-actions">
+              <div class="zoom-group" id="zoom-group"></div>
+              <div class="toolbar-divider"></div>
+              <button class="toolbar-btn" data-action="fit-all">Fit all phases</button>
+              <button class="toolbar-btn" data-action="focus-phase" data-phase="phase1">Focus Phase 1</button>
+              <button class="toolbar-btn" data-action="focus-phase" data-phase="phase2">Focus Phase 2</button>
+              <button class="toolbar-btn" data-action="focus-phase" data-phase="phase3">Focus Phase 3</button>
+              <button class="toolbar-btn" data-action="zoom-out">Zoom out</button>
+              <button class="toolbar-btn" data-action="zoom-in">Zoom in</button>
+              <button class="toolbar-btn" data-action="reset-view">Reset view</button>
+              <label class="debug-toggle">
+                <input type="checkbox" id="debug-toggle">
+                Debug layers
+              </label>
+            </div>
+          </div>
+
+          <div class="timeline-statusbar">
+            <span id="zoom-indicator">Zoom: Macro</span>
+            <span id="timespan-indicator">Timespan</span>
+            <span id="focus-indicator">Focus: all phases</span>
+          </div>
+
+          <div class="timeline-scroll" id="timeline-scroll">
+            <div class="timeline-canvas" id="timeline-canvas">
+              <div class="timeline-axis" id="timeline-axis"></div>
+              <div class="timeline-grid" id="timeline-grid"></div>
+              <div class="timeline-phases" id="timeline-phases"></div>
+              <div class="timeline-items" id="timeline-items"></div>
+            </div>
+          </div>
+
+          <div class="range-strip" id="range-strip"></div>
+        </section>
+
+        <section class="content-panel panel-surface hidden" id="content-panel"></section>
+      </main>
+
+      <aside class="evidence-panel panel-surface" id="evidence-panel"></aside>
+    </div>
+  </div>
+
+  <script src="script-routing.js" type="module"></script>
+</body>
+</html>
