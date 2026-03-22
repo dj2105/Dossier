@@ -1,0 +1,976 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PHASE 1: Compliance Concerns - Evidential Timeline</title>
+    <style>
+        /* ==========================================================================
+           CSS VARIABLES & DOCUMENTARY THEME
+           ========================================================================== */
+        :root {
+            /* Palette: Archival & Documentary */
+            --bg-page: #f6f5f3;        /* Warm off-white paper base */
+            --bg-panel: #ffffff;
+            --bg-shade: #f0eee9;
+            --text-main: #1a1c20;
+            --text-muted: #4a5059;
+            --text-light: #6b7280;
+            --border-light: #e0ddd7;
+            --border-med: #c5c1b8;
+            --border-dark: #8c8982;
+            --accent-dark: #2c3e50;
+            
+            /* Lane Category Colors */
+            --col-operational: #ebf1ed;
+            --border-operational: #5c8469;
+            --col-communication: #eef3f8;
+            --border-communication: #6282a8;
+            --col-process: #f3eff5;
+            --border-process: #8b7d9b;
+            --col-hr: #fdf5f3;
+            --border-hr: #b85e44;
+            
+            /* Typography */
+            --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            --font-serif: 'Georgia', 'Times New Roman', serif;
+            --font-mono: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+            
+            /* Dimensions */
+            --header-height: 64px;
+            --footer-height: 320px;
+            --timeline-axis-y: 620px;
+            --px-per-day: 42px; /* Increased scale to accommodate unclipped cards */
+            --canvas-height: 800px;
+        }
+
+        /* ==========================================================================
+           RESET & BASE STYLES
+           ========================================================================== */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        body {
+            font-family: var(--font-sans);
+            color: var(--text-main);
+            background-color: var(--bg-page);
+            background-image: 
+                linear-gradient(var(--border-light) 1px, transparent 1px),
+                linear-gradient(90deg, var(--border-light) 1px, transparent 1px);
+            background-size: 20px 20px;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ==========================================================================
+           LAYOUT: HEADER
+           ========================================================================== */
+        header {
+            height: var(--header-height);
+            background: var(--bg-panel);
+            border-bottom: 1px solid var(--border-med);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 32px;
+            flex-shrink: 0;
+            z-index: 100;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+        }
+
+        .header-title {
+            display: flex;
+            align-items: baseline;
+            gap: 24px;
+        }
+
+        h1 { 
+            font-size: 1.25rem; 
+            font-weight: 700; 
+            letter-spacing: -0.01em; 
+            font-family: var(--font-serif);
+            color: var(--accent-dark);
+        }
+        
+        .date-range { 
+            font-size: 0.9rem; 
+            color: var(--text-muted); 
+            font-weight: 500; 
+            font-family: var(--font-mono);
+            letter-spacing: 0.05em;
+        }
+
+        .controls-group { display: flex; gap: 16px; align-items: center; }
+        
+        .filters { display: flex; gap: 6px; }
+        .filter-btn {
+            background: var(--bg-page);
+            border: 1px solid var(--border-med);
+            padding: 6px 14px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            border-radius: 4px;
+            cursor: pointer;
+            color: var(--text-muted);
+            transition: all 0.2s ease;
+        }
+        .filter-btn.active { 
+            background: var(--text-main); 
+            color: white; 
+            border-color: var(--text-main); 
+            box-shadow: inset 0 1px 2px rgba(0,0,0,0.2);
+        }
+        .filter-btn:hover:not(.active) { background: var(--bg-shade); }
+
+        .debug-toggle {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.75rem;
+            font-family: var(--font-mono);
+            color: var(--text-light);
+            cursor: pointer;
+        }
+
+        /* ==========================================================================
+           LAYOUT: TIMELINE CANVAS
+           ========================================================================== */
+        main.workspace {
+            flex: 1;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .timeline-scroll-area {
+            flex: 1;
+            overflow-x: auto;
+            overflow-y: hidden;
+            position: relative;
+            cursor: grab;
+            scroll-behavior: smooth;
+        }
+        .timeline-scroll-area:active { cursor: grabbing; }
+
+        .timeline-canvas {
+            position: relative;
+            height: var(--canvas-height);
+            /* Width set via JS */
+        }
+
+        /* Canvas SVG Layer for Connectors */
+        #connectors-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 5;
+        }
+
+        .connector-line {
+            stroke: var(--border-dark);
+            stroke-width: 1.5;
+            transition: opacity 0.3s;
+        }
+        .connector-node {
+            fill: var(--bg-panel);
+            stroke: var(--border-dark);
+            stroke-width: 2;
+            transition: opacity 0.3s;
+        }
+        
+        /* Floating / Uncertain connectors */
+        .connector-line.dashed {
+            stroke-dasharray: 4 4;
+            stroke: var(--border-med);
+        }
+
+        /* Month Bands */
+        .month-band {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            border-left: 1px solid var(--border-med);
+            pointer-events: none;
+            z-index: 1;
+        }
+        .month-label {
+            position: absolute;
+            top: 24px;
+            left: 16px;
+            font-weight: 700;
+            font-size: 1.2rem;
+            color: var(--border-dark);
+            letter-spacing: 0.1em;
+            font-family: var(--font-serif);
+            opacity: 0.4;
+        }
+
+        /* Continuation Zone */
+        .continuation-zone {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.03);
+            border-left: 2px dashed var(--border-dark);
+            pointer-events: none;
+            z-index: 1;
+        }
+        .continuation-label {
+            position: absolute;
+            top: 24px;
+            left: 24px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+
+        /* Axis Line */
+        .timeline-axis {
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: var(--timeline-axis-y);
+            height: 2px;
+            background: var(--text-main);
+            z-index: 2;
+        }
+
+        /* ==========================================================================
+           TIMELINE CARDS
+           ========================================================================== */
+        .card {
+            position: absolute;
+            background: var(--bg-panel);
+            border: 1px solid var(--border-med);
+            border-radius: 2px; /* Sharper corners for documentary feel */
+            padding: 16px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.04), 0 1px 3px rgba(0,0,0,0.02);
+            transform: translateX(-50%);
+            z-index: 10;
+            transition: opacity 0.3s, filter 0.3s;
+            cursor: pointer;
+            border-top-width: 4px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        .card:hover { z-index: 20; box-shadow: 0 8px 16px rgba(0,0,0,0.08); border-color: var(--text-muted); }
+        .card.selected { z-index: 30; outline: 2px solid var(--accent-dark); outline-offset: -1px; box-shadow: 0 8px 24px rgba(0,0,0,0.12); }
+        
+        /* Filtering - Elegant fade rather than harsh hide */
+        .card.filtered-out { opacity: 0.2; filter: grayscale(100%); pointer-events: none; }
+        .connector-group.filtered-out { opacity: 0.2; }
+
+        /* Card Sizing & Lanes */
+        .card[data-type="operational_case"] { 
+            width: 340px; 
+            border-top-color: var(--border-operational); 
+        }
+        .card[data-type="internal_communication"] { 
+            width: 300px; 
+            border-top-color: var(--border-communication); 
+            background: var(--col-communication);
+        }
+        .card[data-type="process_marker"], .card[data-type="training_marker"] { 
+            width: 280px; 
+            border-top-color: var(--border-process); 
+        }
+        .card[data-type="sent_received_chip"] { 
+            width: 180px; 
+            border-top-color: var(--border-hr); 
+            padding: 12px;
+            text-align: center;
+        }
+        .card[data-type="continuation_marker"] {
+            width: 280px;
+            border-top-color: var(--border-hr);
+            background: var(--bg-page);
+        }
+
+        /* Floating / Uncertain Styling */
+        .card[data-status="approximate_from_layout"] {
+            border-style: dashed;
+            border-top-style: solid;
+            box-shadow: none;
+            background: var(--bg-page);
+        }
+
+        /* Card Internal Layout */
+        .card-header { display: flex; justify-content: space-between; align-items: baseline; }
+        .card-date { font-weight: 700; color: var(--text-main); font-size: 0.85rem; }
+        .card-date.uncertain { color: var(--text-muted); font-style: italic; font-weight: 500; }
+        
+        .card-evidence { 
+            font-family: var(--font-mono); 
+            color: var(--text-muted); 
+            background: var(--bg-shade); 
+            padding: 2px 6px; 
+            font-size: 0.75rem;
+            border-radius: 2px; 
+            border: 1px solid var(--border-light); 
+        }
+        
+        .card-status { 
+            font-family: var(--font-mono); 
+            font-size: 0.75rem; 
+            font-weight: bold; 
+            padding: 4px 8px; 
+            background: var(--text-main); 
+            color: white; 
+            display: inline-block;
+            align-self: flex-start;
+            letter-spacing: 0.05em;
+        }
+        
+        .card-title { font-weight: 700; font-size: 1rem; line-height: 1.3; font-family: var(--font-serif); }
+        
+        /* Full text visibility - No line clamping */
+        .card-body { 
+            font-size: 0.85rem; 
+            line-height: 1.5; 
+            color: var(--text-main); 
+        }
+        
+        .card-quote { 
+            font-size: 0.9rem; 
+            font-style: italic; 
+            line-height: 1.5; 
+            color: var(--accent-dark); 
+            border-left: 3px solid var(--border-med); 
+            padding-left: 12px; 
+        }
+        
+        .card-footer { margin-top: 4px; display: flex; justify-content: flex-end; }
+        .card-gc { 
+            font-family: var(--font-mono); 
+            font-size: 0.75rem; 
+            background: var(--bg-panel); 
+            color: var(--border-operational); 
+            border: 1px solid var(--border-operational); 
+            padding: 2px 6px; 
+            border-radius: 2px; 
+            font-weight: 600; 
+        }
+
+        /* ==========================================================================
+           LAYOUT: BOTTOM PANEL (DETAIL & CONTEXT)
+           ========================================================================== */
+        aside.info-panel {
+            height: var(--footer-height);
+            background: var(--bg-panel);
+            border-top: 1px solid var(--border-med);
+            display: flex;
+            flex-shrink: 0;
+            z-index: 100;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.02);
+        }
+
+        .panel-section {
+            padding: 32px;
+            overflow-y: auto;
+        }
+        .panel-section:not(:last-child) { border-right: 1px solid var(--border-light); }
+        
+        .panel-title { 
+            font-size: 0.75rem; 
+            font-weight: 700; 
+            color: var(--text-light); 
+            text-transform: uppercase; 
+            letter-spacing: 0.1em; 
+            margin-bottom: 24px; 
+            border-bottom: 1px solid var(--border-light); 
+            padding-bottom: 8px; 
+        }
+        
+        /* Context & Legend View */
+        #context-legend-view { display: flex; width: 100%; }
+        .context-blocks p { font-size: 0.95rem; line-height: 1.6; color: var(--text-main); margin-bottom: 16px; max-width: 800px;}
+        
+        .legend-grid { display: grid; grid-template-columns: auto 1fr; gap: 12px 24px; font-size: 0.85rem; }
+        .legend-code { font-family: var(--font-mono); font-weight: 600; color: var(--accent-dark); white-space: nowrap; }
+        .legend-def { color: var(--text-muted); line-height: 1.4;}
+
+        /* Detail View */
+        #detail-view { display: none; width: 100%; background: var(--bg-shade); position: relative; }
+        
+        .detail-meta-sidebar {
+            width: 300px;
+            background: var(--bg-panel);
+            padding: 32px;
+            border-right: 1px solid var(--border-med);
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .meta-group { display: flex; flex-direction: column; gap: 4px; }
+        .meta-label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-light); }
+        .meta-value { font-size: 0.9rem; font-weight: 500; color: var(--text-main); }
+        .meta-value.code { font-family: var(--font-mono); font-size: 0.85rem; background: var(--bg-shade); padding: 2px 6px; border: 1px solid var(--border-light); width: fit-content; }
+        
+        .detail-content {
+            flex: 1;
+            padding: 32px 48px;
+            overflow-y: auto;
+        }
+
+        .detail-title { font-size: 1.5rem; font-weight: 700; margin-bottom: 24px; font-family: var(--font-serif); color: var(--accent-dark); }
+        .detail-body { font-size: 1.1rem; line-height: 1.7; color: var(--text-main); white-space: pre-wrap; max-width: 900px; }
+        .detail-quote { font-size: 1.2rem; font-style: italic; line-height: 1.7; color: var(--accent-dark); border-left: 4px solid var(--border-med); padding-left: 24px; max-width: 900px;}
+        
+        .close-detail-btn { 
+            position: absolute; 
+            top: 24px; 
+            right: 32px; 
+            background: var(--bg-panel); 
+            border: 1px solid var(--border-med); 
+            padding: 8px 16px; 
+            border-radius: 4px; 
+            cursor: pointer; 
+            font-size: 0.8rem; 
+            font-weight: 600;
+            transition: background 0.2s;
+        }
+        .close-detail-btn:hover { background: var(--border-light); }
+
+        /* ==========================================================================
+           DEBUG GRID OVERLAY
+           ========================================================================== */
+        body.debug-mode .timeline-canvas {
+            background-image: linear-gradient(90deg, rgba(255,0,0,0.1) 1px, transparent 1px);
+            background-size: var(--px-per-day) 100%;
+        }
+        body.debug-mode .debug-lane {
+            position: absolute;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: rgba(0,0,255,0.2);
+            pointer-events: none;
+            z-index: 99;
+        }
+        body.debug-mode .debug-lane::after {
+            content: attr(data-label);
+            position: absolute;
+            left: 10px;
+            bottom: 2px;
+            font-size: 10px;
+            color: blue;
+            font-family: monospace;
+        }
+
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <header>
+        <div class="header-title">
+            <h1 id="ui-phase-title">PHASE 1: Compliance Concerns</h1>
+            <div class="date-range" id="ui-date-range">18 Aug — 31 Oct 2025</div>
+        </div>
+        <div class="controls-group">
+            <div class="filters" id="filter-controls">
+                <button class="filter-btn active" data-filter="all">All Items</button>
+                <button class="filter-btn" data-filter="operational">Operational Cases</button>
+                <button class="filter-btn" data-filter="communication">Internal Comms</button>
+                <button class="filter-btn" data-filter="process">Process/HR</button>
+            </div>
+            <label class="debug-toggle">
+                <input type="checkbox" id="debug-toggle-cb"> Grid Debug
+            </label>
+        </div>
+    </header>
+
+    <!-- Main Workspace -->
+    <main class="workspace">
+        <div class="timeline-scroll-area" id="scroll-area">
+            <div class="timeline-canvas" id="canvas">
+                <!-- SVG Layer for robust absolute connectors -->
+                <svg id="connectors-layer"></svg>
+                <!-- HTML Elements injected via JS -->
+            </div>
+        </div>
+
+        <!-- Bottom Panel -->
+        <aside class="info-panel">
+            
+            <!-- Default View: Context & Legend -->
+            <div id="context-legend-view">
+                <div class="panel-section" style="flex: 2;">
+                    <div class="panel-title">Source Context</div>
+                    <div class="context-blocks" id="ui-context"></div>
+                </div>
+                <div class="panel-section" style="flex: 1;">
+                    <div class="panel-title">Evidence Legend</div>
+                    <div class="legend-grid" id="ui-legend"></div>
+                </div>
+            </div>
+
+            <!-- Detail View -->
+            <div id="detail-view">
+                <button class="close-detail-btn" id="close-detail">Close Details</button>
+                
+                <div class="detail-meta-sidebar">
+                    <div class="meta-group">
+                        <span class="meta-label">Date</span>
+                        <span class="meta-value" id="det-date"></span>
+                    </div>
+                    <div class="meta-group">
+                        <span class="meta-label">Certainty</span>
+                        <span class="meta-value" id="det-certainty" style="color:var(--text-muted); font-style:italic;"></span>
+                    </div>
+                    <div class="meta-group">
+                        <span class="meta-label">Category</span>
+                        <span class="meta-value" id="det-lane" style="text-transform: capitalize;"></span>
+                    </div>
+                    <div class="meta-group" id="det-evidence-group">
+                        <span class="meta-label">Evidence Ref</span>
+                        <span class="meta-value code" id="det-code"></span>
+                    </div>
+                    <div class="meta-group" id="det-gc-group">
+                        <span class="meta-label">Regulatory Rule</span>
+                        <span class="meta-value code" id="det-gc"></span>
+                    </div>
+                </div>
+
+                <div class="detail-content">
+                    <div class="panel-title">Evidential Item Transcript</div>
+                    <div class="card-status" id="det-status" style="display:none; margin-bottom: 16px;"></div>
+                    <div class="detail-title" id="det-title"></div>
+                    <div id="det-body-container"></div>
+                </div>
+            </div>
+
+        </aside>
+    </main>
+
+    <script>
+        /**
+         * ==========================================================================
+         * DATA MODEL (Refined pass)
+         * - Resolves conflation between undated HR email and 30 Oct GH-01 chip.
+         * - Includes explicit `date_status` for correct visual rendering logic.
+         * ==========================================================================
+         */
+        const timelineData = {
+            phase: {
+                title: "PHASE 1: Compliance Concerns",
+                date_range: "18 Aug — 31 Oct 2025",
+                start_date_iso: "2025-08-18",
+                end_date_iso: "2025-10-31"
+            },
+            context_blocks: [
+                { body: "On 18 August 2025 I moved to a team with limited overlap with my Team Leader, so guidance during calls was often sought through group chats or other supervisors." },
+                { body: "The cases above highlight different Ofcom regulatory concerns that arose while handling customer issues." },
+                { body: "These examples appear in my disclosure dossier; additional cases and detailed analysis are provided there. The evidence consists primarily of contemporaneous Microsoft Teams screenshots." }
+            ],
+            legend: [
+                { code_type: "T-##", definition: "Teams screenshots (appendix); operational case evidence - Sec 1" },
+                { code_type: "GH-##", definition: "Grievance-handling emails (appendix)" },
+                { code_type: "Sec #", definition: "Dossier section reference" },
+                { code_type: "General", definition: "Evidence reference codes (see disclosure dossier)" }
+            ],
+            items: [
+                { id: "evt-01", type: "operational_case", date_display: "22 Aug", date_iso: "2025-08-22", date_status: "confirmed", title: "Silence Treated as Consent to Contract", body: "After a customer stated they had not consented to a contract, I was instructed consent was verifiable if the customer’s record showed a contract email had been sent. Ofcom requires verifiable express consent.", evidence_code: "T-01", gc_refs: "GC: C1.5, C1.6", lane: "operational" },
+                { id: "evt-02", type: "internal_communication", date_display: "6 Sept", date_iso: "2025-09-06", date_status: "confirmed", title: "Teams DM to OPs Manager:", quote: "\"[I’ve] only received very vague guidance which puts me in a difficult position with customers.\"", evidence_code: "T-09", lane: "communication" },
+                { id: "evt-03", type: "operational_case", date_display: "25 Sept", date_iso: "2025-09-25", date_status: "confirmed", title: "TL Closed Complaint Despite Customer Instruction", body: "Complaint closed suddenly despite the customer stating it should remain open until the issue was resolved. Ofcom requires complaints remain open until the customer considers it resolved.", evidence_code: "T-06", gc_refs: "GC: C4", lane: "operational" },
+                { id: "evt-04", type: "operational_case", date_display: "6 Oct", date_iso: "2025-10-06", date_status: "confirmed", title: "Translator Refused and ADR Blocked", body: "A vulnerable customer stated a debt with a collection agency resulted from a language barrier. No evidence could be located. I was instructed to inform the customer the debt stood and close the complaint without mentioning Alternative Dispute Resolution. Ofcom requires access to ADR where complaints remain unresolved.", evidence_code: "T-22", gc_refs: "GC: C4", lane: "operational" },
+                
+                // 20 Oct pair - Same exact date, different lanes
+                { id: "evt-05", type: "training_marker", date_display: "20 Oct", date_iso: "2025-10-20", date_status: "confirmed", title: "Complaints Training", body: "WebEx “Back to Basics” training promoted rapid complaint closure and adviser-led resolution. Compliance concerns: alignment with Ofcom GC C4 requirements for complaint resolution and ADR access. Full analysis in dossier.", evidence_code: "Sec 3", lane: "process" },
+                { id: "evt-06", type: "internal_communication", date_display: "20 Oct", date_iso: "2025-10-20", date_status: "confirmed", title: "Teams DM to TL:", quote: "“I … understand that you want this complaint closed, but ... part of my responsibility as an agent is to be aware of Ofcom's regulations.”", evidence_code: "T-22", lane: "communication" },
+                
+                // Fidelity Correction: Separation of un-dated HR email from 30 Oct GH-01 marker
+                { id: "evt-07a", type: "process_marker", date_display: "Undated", date_iso: "2025-10-28", date_status: "approximate_from_layout", title: "Initial email to HR", body: "Outlines difficulties and requests change of team or department.", evidence_code: null, lane: "process" },
+                { id: "evt-07b", type: "sent_received_chip", date_display: "30 Oct", date_iso: "2025-10-30", date_status: "confirmed", title: "GH-01", status_chip: "SENT", evidence_code: null, lane: "hr_grievance" },
+                
+                { id: "evt-08", type: "operational_case", date_display: "31 Oct", date_iso: "2025-10-31", date_status: "confirmed", title: "Vulnerable Customer Escalation", body: "85-year-old widow reported a store visit had resulted in a more expensive package. After a repeated humiliating in-store experience, she refused to return. Escalation resulted in the Team Leader overlooking vulnerability, offering no resolution, and closing the complaint without permission - preventing access to ADR. Ofcom requires adjusted support to safeguard vulnerable customers.", evidence_code: "T-29", gc_refs: "GC: C5", lane: "operational" }
+            ],
+            continuation: [
+                { id: "cont-01", type: "continuation_marker", date_display: "11 Nov", date_iso: "2025-11-11", date_status: "confirmed", title: "ER acknowledges receipt", body: "Policy and dignity assurances given.", evidence_code: "GH-04", status_chip: "RECEIVED", lane: "hr_grievance" }
+            ]
+        };
+
+        /**
+         * ==========================================================================
+         * APPLICATION LOGIC
+         * ==========================================================================
+         */
+        const App = {
+            config: {
+                pxPerDay: 42, 
+                paddingLeft: 120, // Generous start padding
+                paddingRight: 160, // Room for phase 2 bleed
+                axisY: 620,        // Lowered to give text-heavy operational cards room
+                
+                // Refined Lanes (Y-offsets)
+                lanes: {
+                    operational: 40,      // Top tier
+                    process: 340,         // Middle tier
+                    communication: 480,   // Lower-middle tier
+                    hr_grievance: 660     // Sub-axis tier
+                }
+            },
+            
+            dates: {},
+            elements: {},
+            allItems: [],
+            cardsInDOM: [], // references for connector redrawing
+
+            init() {
+                this.cacheDOM();
+                this.parseDates();
+                this.renderStaticUI();
+                this.renderTimeline();
+                this.bindEvents();
+                
+                // Wait for browser paint to measure heights correctly before drawing SVG lines
+                requestAnimationFrame(() => {
+                    setTimeout(() => this.drawAllConnectors(), 50);
+                });
+            },
+
+            cacheDOM() {
+                this.elements = {
+                    canvas: document.getElementById('canvas'),
+                    svgLayer: document.getElementById('connectors-layer'),
+                    context: document.getElementById('ui-context'),
+                    legend: document.getElementById('ui-legend'),
+                    filterBtns: document.querySelectorAll('.filter-btn'),
+                    debugCb: document.getElementById('debug-toggle-cb'),
+                    
+                    viewContext: document.getElementById('context-legend-view'),
+                    viewDetail: document.getElementById('detail-view'),
+                    closeBtn: document.getElementById('close-detail'),
+                    
+                    detDate: document.getElementById('det-date'),
+                    detCertainty: document.getElementById('det-certainty'),
+                    detLane: document.getElementById('det-lane'),
+                    detCode: document.getElementById('det-code'),
+                    detGc: document.getElementById('det-gc'),
+                    detEvGroup: document.getElementById('det-evidence-group'),
+                    detGcGroup: document.getElementById('det-gc-group'),
+                    detTitle: document.getElementById('det-title'),
+                    detBodyContainer: document.getElementById('det-body-container'),
+                    detStatus: document.getElementById('det-status')
+                };
+            },
+
+            parseDates() {
+                this.dates.start = new Date(timelineData.phase.start_date_iso);
+                this.dates.end = new Date(timelineData.phase.end_date_iso);
+                
+                let absoluteEnd = this.dates.end;
+                if (timelineData.continuation && timelineData.continuation.length > 0) {
+                    const contDates = timelineData.continuation.map(c => new Date(c.date_iso));
+                    absoluteEnd = new Date(Math.max(...contDates));
+                    absoluteEnd.setDate(absoluteEnd.getDate() + 3); // Buffer
+                }
+                this.dates.absoluteEnd = absoluteEnd;
+                this.dates.totalDays = this.diffDays(this.dates.start, this.dates.absoluteEnd);
+            },
+
+            diffDays(d1, d2) {
+                const oneDay = 24 * 60 * 60 * 1000;
+                return Math.round(Math.abs((d2 - d1) / oneDay));
+            },
+
+            calculateX(dateStr) {
+                const target = new Date(dateStr);
+                const days = this.diffDays(this.dates.start, target);
+                return this.config.paddingLeft + (days * this.config.pxPerDay);
+            },
+
+            renderStaticUI() {
+                // Render Context
+                this.elements.context.innerHTML = timelineData.context_blocks
+                    .map(b => `<p>${b.body}</p>`)
+                    .join('');
+
+                // Render Legend
+                this.elements.legend.innerHTML = timelineData.legend
+                    .map(l => `<div class="legend-code">${l.code_type}</div><div class="legend-def">${l.definition}</div>`)
+                    .join('');
+            },
+
+            renderTimeline() {
+                const totalWidth = this.config.paddingLeft + (this.dates.totalDays * this.config.pxPerDay) + this.config.paddingRight;
+                this.elements.canvas.style.width = `${totalWidth}px`;
+
+                this.renderMonthBands();
+                this.renderContinuationZone();
+                
+                // Draw Horizontal Axis
+                const axis = document.createElement('div');
+                axis.className = 'timeline-axis';
+                this.elements.canvas.appendChild(axis);
+
+                // Add Debug Lanes (hidden by default)
+                Object.entries(this.config.lanes).forEach(([lane, y]) => {
+                    const dl = document.createElement('div');
+                    dl.className = 'debug-lane';
+                    dl.style.top = `${y}px`;
+                    dl.dataset.label = `Lane: ${lane}`;
+                    this.elements.canvas.appendChild(dl);
+                });
+
+                // Render Items
+                this.allItems = [...timelineData.items, ...(timelineData.continuation || [])];
+                this.allItems.forEach(item => this.renderCard(item));
+            },
+
+            renderMonthBands() {
+                const months = [
+                    { name: 'August', start: '2025-08-18', end: '2025-08-31' },
+                    { name: 'September', start: '2025-09-01', end: '2025-09-30' },
+                    { name: 'October', start: '2025-10-01', end: '2025-10-31' }
+                ];
+
+                months.forEach(m => {
+                    const startX = this.calculateX(m.start);
+                    const endTarget = new Date(m.end);
+                    endTarget.setDate(endTarget.getDate() + 1);
+                    const endX = this.calculateX(endTarget.toISOString().split('T')[0]);
+                    
+                    const band = document.createElement('div');
+                    band.className = 'month-band';
+                    band.style.left = `${startX}px`;
+                    band.style.width = `${endX - startX}px`;
+                    band.innerHTML = `<div class="month-label">${m.name}</div>`;
+                    this.elements.canvas.appendChild(band);
+                });
+            },
+
+            renderContinuationZone() {
+                const startX = this.calculateX('2025-11-01');
+                const zone = document.createElement('div');
+                zone.className = 'continuation-zone';
+                zone.style.left = `${startX}px`;
+                zone.style.right = `0px`;
+                zone.innerHTML = `<div class="continuation-label">Phase 2 Handoff &rarr;</div>`;
+                this.elements.canvas.appendChild(zone);
+            },
+
+            renderCard(item) {
+                const xPos = this.calculateX(item.date_iso);
+                const yPos = this.config.lanes[item.lane] || 50;
+                
+                const card = document.createElement('div');
+                card.className = `card`;
+                card.id = `card-${item.id}`;
+                card.dataset.id = item.id;
+                card.dataset.type = item.type;
+                card.dataset.lane = item.lane;
+                card.dataset.status = item.date_status; // Used for floating styles
+                card.style.left = `${xPos}px`;
+                card.style.top = `${yPos}px`;
+
+                // Header Assembly
+                let headerHtml = `<div class="card-header">
+                    <span class="card-date ${item.date_status !== 'confirmed' ? 'uncertain' : ''}">${item.date_display}</span>
+                    ${item.evidence_code ? `<span class="card-evidence">${item.evidence_code}</span>` : ''}
+                </div>`;
+                
+                let bodyHtml = '';
+                if (item.status_chip) {
+                    bodyHtml += `<div><span class="card-status">${item.status_chip}</span></div>`;
+                }
+                if (item.title) {
+                    bodyHtml += `<div class="card-title">${item.title}</div>`;
+                }
+                if (item.quote) {
+                    bodyHtml += `<div class="card-quote">${item.quote}</div>`;
+                } else if (item.body) {
+                    bodyHtml += `<div class="card-body">${item.body}</div>`;
+                }
+
+                let footerHtml = '';
+                if (item.gc_refs) {
+                    footerHtml = `<div class="card-footer"><span class="card-gc">${item.gc_refs}</span></div>`;
+                }
+
+                card.innerHTML = headerHtml + bodyHtml + footerHtml;
+                this.elements.canvas.appendChild(card);
+                
+                // Store reference for SVG connector rendering
+                this.cardsInDOM.push({ el: card, data: item, x: xPos, targetY: yPos });
+
+                card.addEventListener('click', () => this.selectItem(item, card));
+            },
+
+            drawAllConnectors() {
+                this.elements.svgLayer.innerHTML = ''; // Clear existing
+                const canvasRect = this.elements.canvas.getBoundingClientRect();
+                
+                this.cardsInDOM.forEach(cardObj => {
+                    const rect = cardObj.el.getBoundingClientRect();
+                    const isBelowAxis = cardObj.targetY > this.config.axisY;
+                    
+                    // Local coords inside the canvas
+                    const x = cardObj.x;
+                    // Connect from bottom of card if above axis, top of card if below axis
+                    const y1 = isBelowAxis ? (rect.top - canvasRect.top) : (rect.bottom - canvasRect.top);
+                    const y2 = this.config.axisY;
+
+                    const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
+                    g.setAttribute("class", "connector-group");
+                    g.setAttribute("data-id", cardObj.data.id);
+
+                    const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+                    line.setAttribute("x1", x);
+                    line.setAttribute("y1", y1);
+                    line.setAttribute("x2", x);
+                    line.setAttribute("y2", y2);
+                    line.setAttribute("class", `connector-line ${cardObj.data.date_status !== 'confirmed' ? 'dashed' : ''}`);
+                    
+                    g.appendChild(line);
+
+                    // Add node dot on axis only if confirmed date
+                    if (cardObj.data.date_status === 'confirmed') {
+                        const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+                        circle.setAttribute("cx", x);
+                        circle.setAttribute("cy", y2);
+                        circle.setAttribute("r", "3.5");
+                        circle.setAttribute("class", "connector-node");
+                        g.appendChild(circle);
+                    }
+
+                    this.elements.svgLayer.appendChild(g);
+                });
+            },
+
+            selectItem(item, cardElement) {
+                // UI state
+                document.querySelectorAll('.card').forEach(c => c.classList.remove('selected'));
+                cardElement.classList.add('selected');
+
+                // Populate Detail View Meta
+                this.elements.detDate.textContent = item.date_display;
+                
+                let certaintyText = "Confirmed";
+                if (item.date_status === 'approximate_from_layout') certaintyText = "Approximate / Floating";
+                if (item.date_status === 'unconfirmed') certaintyText = "Unconfirmed";
+                this.elements.detCertainty.textContent = certaintyText;
+                
+                this.elements.detLane.textContent = item.lane.replace('_', ' ');
+                
+                if (item.evidence_code) {
+                    this.elements.detCode.textContent = item.evidence_code;
+                    this.elements.detEvGroup.style.display = 'flex';
+                } else {
+                    this.elements.detEvGroup.style.display = 'none';
+                }
+
+                if (item.gc_refs) {
+                    this.elements.detGc.textContent = item.gc_refs;
+                    this.elements.detGcGroup.style.display = 'flex';
+                } else {
+                    this.elements.detGcGroup.style.display = 'none';
+                }
+
+                if (item.status_chip) {
+                    this.elements.detStatus.textContent = item.status_chip;
+                    this.elements.detStatus.style.display = 'inline-block';
+                } else {
+                    this.elements.detStatus.style.display = 'none';
+                }
+
+                // Populate Content
+                this.elements.detTitle.textContent = item.title || '';
+                this.elements.detBodyContainer.innerHTML = item.quote ? 
+                    `<div class="detail-quote">${item.quote}</div>` : 
+                    `<div class="detail-body">${item.body || ''}</div>`;
+
+                // Switch Panels
+                this.elements.viewContext.style.display = 'none';
+                this.elements.viewDetail.style.display = 'flex';
+            },
+
+            clearSelection() {
+                document.querySelectorAll('.card').forEach(c => c.classList.remove('selected'));
+                this.elements.viewDetail.style.display = 'none';
+                this.elements.viewContext.style.display = 'flex';
+            },
+
+            bindEvents() {
+                this.elements.closeBtn.addEventListener('click', () => this.clearSelection());
+
+                // Debug Toggle
+                this.elements.debugCb.addEventListener('change', (e) => {
+                    document.body.classList.toggle('debug-mode', e.target.checked);
+                });
+
+                // Filters
+                this.elements.filterBtns.forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        this.elements.filterBtns.forEach(b => b.classList.remove('active'));
+                        e.target.classList.add('active');
+                        
+                        const filterVal = e.target.dataset.filter;
+                        
+                        // Update Cards
+                        document.querySelectorAll('.card').forEach(card => {
+                            const isProcessGroup = (filterVal === 'process' && (card.dataset.lane === 'process' || card.dataset.lane === 'hr_grievance'));
+                            
+                            if (filterVal === 'all' || card.dataset.lane === filterVal || isProcessGroup) {
+                                card.classList.remove('filtered-out');
+                            } else {
+                                card.classList.add('filtered-out');
+                            }
+                        });
+
+                        // Update SVG Connectors to match fade
+                        document.querySelectorAll('.connector-group').forEach(g => {
+                            const id = g.getAttribute('data-id');
+                            const card = document.getElementById(`card-${id}`);
+                            if(card && card.classList.contains('filtered-out')) {
+                                g.classList.add('filtered-out');
+                            } else {
+                                g.classList.remove('filtered-out');
+                            }
+                        });
+                        
+                        this.clearSelection();
+                    });
+                });
+
+                // Drag to Scroll 
+                let isDown = false;
+                let startX;
+                let scrollLeft;
+                const slider = document.getElementById('scroll-area');
+
+                slider.addEventListener('mousedown', (e) => {
+                    // Prevent drag interference if clicking a card
+                    if(e.target.closest('.card')) return;
+                    isDown = true;
+                    slider.style.cursor = 'grabbing';
+                    startX = e.pageX - slider.offsetLeft;
+                    scrollLeft = slider.scrollLeft;
+                });
+                slider.addEventListener('mouseleave', () => { isDown = false; slider.style.cursor = 'grab'; });
+                slider.addEventListener('mouseup', () => { isDown = false; slider.style.cursor = 'grab'; });
+                slider.addEventListener('mousemove', (e) => {
+                    if (!isDown) return;
+                    e.preventDefault();
+                    const x = e.pageX - slider.offsetLeft;
+                    const walk = (x - startX) * 1.5;
+                    slider.scrollLeft = scrollLeft - walk;
+                });
+            }
+        };
+
+        document.addEventListener('DOMContentLoaded', () => App.init());
+    </script>
+</body>
+</html>
