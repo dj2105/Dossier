@@ -1,0 +1,189 @@
+{
+  "meta": {
+    "title": "Evidence routing map",
+    "style": "Minimal dossier-linked routing",
+    "notes": "Initial route table for the online dossier shell. The aim is to route selected chronology items into the report structure and appendix families without decorative expansion or repeated summary text. Phase 1 uses the strongest current mappings. Later-phase entries remain draft where the underlying evidential import is not yet fully wired."
+  },
+  "timeline_routes": [
+    {
+      "item_id": "phase1-22-aug-t01",
+      "section_id": "sec-1",
+      "appendix_id": "appendix-t",
+      "document_map_id": "cluster-a",
+      "dossier_anchor": "sec-1-t01-case",
+      "exhibit_anchor": "appendix-t-t01",
+      "route_status": "mapped",
+      "notes": "Key Phase 1 compliance concern. Routes into MS Teams Evidence first, with broader chronology support via cluster A."
+    },
+    {
+      "item_id": "phase1-25-sep-t06",
+      "section_id": "sec-1",
+      "appendix_id": "appendix-t",
+      "document_map_id": "cluster-a",
+      "dossier_anchor": "sec-1-t06-key-case",
+      "exhibit_anchor": "appendix-t-t06",
+      "route_status": "mapped",
+      "notes": "Key complaint-handling case. Primary route remains Section 1, with cross-reading into systemic pattern analysis."
+    },
+    {
+      "item_id": "phase1-06-oct-t22",
+      "section_id": "sec-1",
+      "appendix_id": "appendix-t",
+      "document_map_id": "cluster-a",
+      "dossier_anchor": "sec-1-t22-key-case",
+      "exhibit_anchor": "appendix-t-t22",
+      "route_status": "mapped",
+      "notes": "Key vulnerable-customer / ADR case. Routes first into the Teams evidence section, then outward into wider systemic analysis."
+    },
+    {
+      "item_id": "phase1-31-oct-t29",
+      "section_id": "sec-1",
+      "appendix_id": "appendix-t",
+      "document_map_id": "cluster-a",
+      "dossier_anchor": "sec-1-t29-key-case",
+      "exhibit_anchor": "appendix-t-t29",
+      "route_status": "mapped",
+      "notes": "Late Phase 1 vulnerability escalation marker. Kept minimal and direct."
+    },
+    {
+      "item_id": "phase1-30-oct-gh01",
+      "section_id": "sec-5",
+      "appendix_id": "appendix-gh",
+      "document_map_id": "cluster-b",
+      "dossier_anchor": "sec-5-gh01-opening-contact",
+      "exhibit_anchor": "appendix-gh-gh01",
+      "route_status": "mapped",
+      "notes": "Confirmed grievance transmission marker bridging Phase 1 into grievance handling."
+    },
+    {
+      "item_id": "phase2-11-nov-gh04",
+      "section_id": "sec-5",
+      "appendix_id": "appendix-gh",
+      "document_map_id": "cluster-b",
+      "dossier_anchor": "sec-5-gh04-acknowledgement",
+      "exhibit_anchor": "appendix-gh-gh04",
+      "route_status": "mapped",
+      "notes": "Acknowledgement / receipt marker visible in the Phase 1 to Phase 2 handoff and in the Phase 2 summary page."
+    },
+    {
+      "item_id": "phase1-undated-hr-email",
+      "section_id": "sec-4",
+      "appendix_id": "appendix-gh",
+      "document_map_id": "cluster-b",
+      "dossier_anchor": "sec-4-initial-hr-contact",
+      "exhibit_anchor": "appendix-gh-early-contact",
+      "route_status": "draft",
+      "notes": "Kept draft because the timeline note is approximate from layout rather than a confirmed dated transmission marker."
+    },
+    {
+      "item_id": "phase1-20-oct-sec3",
+      "section_id": "sec-3",
+      "appendix_id": "appendix-ct",
+      "document_map_id": "cluster-a",
+      "dossier_anchor": "sec-3-training-overview",
+      "exhibit_anchor": "appendix-ct-session",
+      "route_status": "mapped",
+      "notes": "Routes the training marker into the dedicated complaints training section."
+    },
+    {
+      "item_id": "phase3-29-dec-gh30",
+      "section_id": "sec-5",
+      "appendix_id": "appendix-gh",
+      "document_map_id": "cluster-c",
+      "dossier_anchor": "sec-5-gh30-late-december",
+      "exhibit_anchor": "appendix-gh-gh30",
+      "route_status": "placeholder",
+      "notes": "Phase 3 route kept as placeholder until the later grievance-handling evidence is fully wired in."
+    },
+    {
+      "item_id": "phase3-26-jan-gh36",
+      "section_id": "sec-5",
+      "appendix_id": "appendix-gh",
+      "document_map_id": "cluster-c",
+      "dossier_anchor": "sec-5-gh36-january-correspondence",
+      "exhibit_anchor": "appendix-gh-gh36",
+      "route_status": "placeholder",
+      "notes": "Late January grievance correspondence route placeholder."
+    }
+  ],
+  "section_routes": [
+    {
+      "section_id": "sec-1",
+      "primary_appendix_ids": ["appendix-t"],
+      "timeline_item_ids": ["phase1-22-aug-t01", "phase1-06-sep-t09", "phase1-25-sep-t06", "phase1-06-oct-t22", "phase1-20-oct-t22-dm", "phase1-31-oct-t29"],
+      "document_map_ids": ["cluster-a"],
+      "page_target": "report/section-1.html",
+      "route_status": "draft"
+    },
+    {
+      "section_id": "sec-3",
+      "primary_appendix_ids": ["appendix-ct", "appendix-t"],
+      "timeline_item_ids": ["phase1-20-oct-sec3", "phase1-20-oct-t22-dm"],
+      "document_map_ids": ["cluster-a"],
+      "page_target": "report/section-3.html",
+      "route_status": "draft"
+    },
+    {
+      "section_id": "sec-4",
+      "primary_appendix_ids": ["appendix-at", "appendix-gh"],
+      "timeline_item_ids": ["phase1-undated-hr-email", "phase2-11-nov-gh04"],
+      "document_map_ids": ["cluster-b"],
+      "page_target": "report/section-4.html",
+      "route_status": "draft"
+    },
+    {
+      "section_id": "sec-5",
+      "primary_appendix_ids": ["appendix-gh"],
+      "timeline_item_ids": ["phase1-30-oct-gh01", "phase2-11-nov-gh04", "phase2-19-dec-gh29", "phase3-29-dec-gh30", "phase3-26-jan-gh36"],
+      "document_map_ids": ["cluster-b", "cluster-c"],
+      "page_target": "report/section-5.html",
+      "route_status": "draft"
+    }
+  ],
+  "appendix_routes": [
+    {
+      "appendix_id": "appendix-t",
+      "section_ids": ["sec-1", "sec-3"],
+      "timeline_item_ids": ["phase1-22-aug-t01", "phase1-06-sep-t09", "phase1-25-sep-t06", "phase1-06-oct-t22", "phase1-20-oct-t22-dm", "phase1-31-oct-t29"],
+      "viewer_target": "appendices/t/index.html",
+      "route_status": "draft"
+    },
+    {
+      "appendix_id": "appendix-ct",
+      "section_ids": ["sec-3"],
+      "timeline_item_ids": ["phase1-20-oct-sec3"],
+      "viewer_target": "appendices/ct/index.html",
+      "route_status": "draft"
+    },
+    {
+      "appendix_id": "appendix-gh",
+      "section_ids": ["sec-4", "sec-5"],
+      "timeline_item_ids": ["phase1-undated-hr-email", "phase1-30-oct-gh01", "phase2-11-nov-gh04", "phase2-19-dec-gh29", "phase3-29-dec-gh30", "phase3-26-jan-gh36"],
+      "viewer_target": "appendices/gh/index.html",
+      "route_status": "draft"
+    }
+  ],
+  "document_map_routes": [
+    {
+      "document_map_id": "cluster-a",
+      "section_ids": ["sec-1", "sec-2", "sec-3"],
+      "appendix_ids": ["appendix-t", "appendix-ct", "appendix-ce"],
+      "timeline_item_ids": ["phase1-22-aug-t01", "phase1-25-sep-t06", "phase1-06-oct-t22", "phase1-20-oct-sec3", "phase1-31-oct-t29"],
+      "cluster_summary": "Compliance concerns feeding into escalation."
+    },
+    {
+      "document_map_id": "cluster-b",
+      "section_ids": ["sec-4", "sec-5"],
+      "appendix_ids": ["appendix-gh", "appendix-at"],
+      "timeline_item_ids": ["phase1-undated-hr-email", "phase1-30-oct-gh01", "phase2-11-nov-gh04", "phase2-19-dec-gh29"],
+      "cluster_summary": "Grievance and interim arrangements routing."
+    },
+    {
+      "document_map_id": "cluster-c",
+      "section_ids": ["sec-5", "sec-6"],
+      "appendix_ids": ["appendix-gh", "appendix-ce"],
+      "timeline_item_ids": ["phase3-29-dec-gh30", "phase3-26-jan-gh36"],
+      "cluster_summary": "Operational silence and escalation route."
+    }
+  ]
+}
