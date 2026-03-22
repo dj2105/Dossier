@@ -1,0 +1,67 @@
+{
+  "sections": [
+    {
+      "id": "sec-0",
+      "code": "0.",
+      "title": "Introduction & Purpose",
+      "stub_summary": "Opening context for the disclosure, the online evidential architecture, and the intended dossier-led reading path.",
+      "stub_detail": "This placeholder section will introduce the report purpose, documentary methodology, and how the online shell mirrors the dossier structure without replacing evidential reading.",
+      "primary_appendix_family": "Appendix SC",
+      "timeline_connection": "Overview, chronology framing, and document map entry points"
+    },
+    {
+      "id": "sec-1",
+      "code": "1.",
+      "title": "MS Teams Evidence",
+      "stub_summary": "Primary route for the Teams-based evidential material used in the refined Phase 1 chronology.",
+      "stub_detail": "Future dossier page target for the Teams messages, operational screenshots, and linked extracts already represented in the master timeline.",
+      "primary_appendix_family": "Appendix T",
+      "timeline_connection": "Phase 1 operational and communication markers"
+    },
+    {
+      "id": "sec-2",
+      "code": "2.",
+      "title": "Systemic & Cultural Evidence",
+      "stub_summary": "Section route for patterns, repeated handling concerns, and broader systemic interpretation.",
+      "stub_detail": "This placeholder will later assemble cross-case patterns, contextual notes, and evidence clusters that sit behind the Phase 1 chronology.",
+      "primary_appendix_family": "Appendix CE",
+      "timeline_connection": "Phase 1 clustering and macro escalation reading"
+    },
+    {
+      "id": "sec-3",
+      "code": "3.",
+      "title": "Complaints Training Session",
+      "stub_summary": "Dedicated route for the complaints training material and its comparison with operational handling evidence.",
+      "stub_detail": "Future dossier target for training notes, comparison extracts, and the relationship between documentary training language and later complaint handling actions.",
+      "primary_appendix_family": "Appendix CT",
+      "timeline_connection": "20 Oct training marker and related Teams messages"
+    },
+    {
+      "id": "sec-4",
+      "code": "4.",
+      "title": "Interim Arrangements",
+      "stub_summary": "Placeholder section for transfers, arrangements, and handling context arising as the grievance route develops.",
+      "stub_detail": "This section will host the later interim arrangements chronology and any linked acknowledgement or management routing evidence.",
+      "primary_appendix_family": "Appendix AT",
+      "timeline_connection": "Phase 2 interim arrangement markers and 9 Jan meeting route"
+    },
+    {
+      "id": "sec-5",
+      "code": "5.",
+      "title": "Grievance Handling",
+      "stub_summary": "Main later-phase destination for grievance correspondence, acknowledgements, silence periods, and sequence analysis.",
+      "stub_detail": "Future dossier page target for GH-01 onward, including acknowledgements, sent markers, response gaps, and linked exhibit navigation.",
+      "primary_appendix_family": "Appendix GH",
+      "timeline_connection": "Phase 1 bridge item, all Phase 2 stubs, and major Phase 3 correspondence markers"
+    },
+    {
+      "id": "sec-6",
+      "code": "6.",
+      "title": "Conclusions & Requested Outcomes",
+      "stub_summary": "Closing route for the evidential conclusions, requested outcomes, and escalation targets.",
+      "stub_detail": "This placeholder will later synthesise the chronology, evidential routes, and requested outcomes without flattening the dossier into summary-only form.",
+      "primary_appendix_family": "Appendix CE",
+      "timeline_connection": "Phase 3 silence and March escalation placeholder"
+    }
+  ]
+}

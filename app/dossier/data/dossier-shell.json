@@ -1,0 +1,59 @@
+{
+  "title": "Disclosure Dossier / Investigative Architecture Draft",
+  "submission_context": "Draft online evidential presentation shell",
+  "organisation": "Online evidential dossier prototype",
+  "date": "22 March 2026",
+  "status": "Architecture draft for full-site wiring",
+  "concise_intro": "This draft prototype treats the dossier as the primary evidential object. Report sections and appendices remain the main reading routes, while the timeline acts as a navigable chronology that can progressively reveal how evidential items connect back into the dossier.",
+  "design_philosophy": "The site opens as a dossier workspace rather than a timeline spectacle. Users can move from overview to sections, appendices, and the master timeline without losing the sense that the report body and evidence families are the core destinations.",
+  "document_routes": [
+    {
+      "view": "overview",
+      "label": "Overview",
+      "description": "Landing shell, submission context, and dossier architecture summary."
+    },
+    {
+      "view": "timeline",
+      "label": "Master Timeline",
+      "description": "Chronology as an evidence navigation layer with macro-to-detail zoom."
+    },
+    {
+      "view": "sections",
+      "label": "Report Sections",
+      "description": "Primary dossier destinations organised around the report structure."
+    },
+    {
+      "view": "appendices",
+      "label": "Appendices",
+      "description": "Appendix families and future exhibit viewer targets."
+    },
+    {
+      "view": "document-map",
+      "label": "Document Map",
+      "description": "Cross-reference shell linking chronology, sections, appendices, and future dossier pages."
+    }
+  ],
+  "document_map": [
+    {
+      "anchor": "Chronology cluster A",
+      "title": "Compliance concerns feeding into escalation",
+      "description": "Phase 1 operational markers remain visible as the originating evidential context for later grievance handling.",
+      "section_target": "Sec 1 / Sec 2 / Sec 3",
+      "appendix_target": "Appendix T / SC / CE"
+    },
+    {
+      "anchor": "Chronology cluster B",
+      "title": "Grievance and interim arrangements routing",
+      "description": "Phase 2 stub items demonstrate how grievance correspondence and response-gap analysis will route into the report and appendix families.",
+      "section_target": "Sec 4 / Sec 5",
+      "appendix_target": "Appendix GH / AT"
+    },
+    {
+      "anchor": "Chronology cluster C",
+      "title": "Operational silence and escalation route",
+      "description": "Phase 3 placeholder items keep the later chronology testable while preserving clear labels that the detailed evidence is still to be wired in.",
+      "section_target": "Sec 5 / Sec 6",
+      "appendix_target": "Appendix GH / CT"
+    }
+  ]
+}
